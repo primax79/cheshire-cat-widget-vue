@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cheshire Cat Chat</title>
     <style>
@@ -23,8 +23,8 @@
         flex-grow: 1;
       }
     </style>
-    <script type="module" crossorigin src="/widget.js"></script>
-    <link rel="stylesheet" href="/widget.css">
+    <script type="module" crossorigin src="./widget.js"></script>
+    <link rel="stylesheet" href="./widget.css">
   </head>
   <body data-theme="light">
     <h1 class="chat-title">Cat ready to hack!</h1>
@@ -32,11 +32,18 @@
     
     <script>
       const catChat = document.querySelector("#cat-chat")
-
+      //const config_access_token = "MYBEAUTIFULTOKEN";
+      const config_user = "username"
       catChat.settings = {
-        authKey: 'meow',
-        baseUrl: 'localhost',
+        dark: true,
+        why: true,
+        thinking: "the cat is thinking...",
+        placeholder: "Ask the Cheshire Cat",
+        // authKey: 'meow',
+        host: 'localhost',
         port: '1865',
+        userId: config_user,
+        //credential: config_access_token,
         ws: {
           onFailed: (error) => {
             console.log(error.description)
