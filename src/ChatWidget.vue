@@ -9,18 +9,16 @@ import { convertToHsl, generateDarkenColorFrom, generateForegroundColorFrom } fr
 import type { Message } from '@models/Message'
 import type { Notification } from '@models/Notification'
 import { Features, type Feature, updateClient } from '@/config'
-import { CatClient, type PromptSettings, type CatSettings } from 'ccat-api'
+import { CatClient, type CatSettings } from 'ccat-api'
 
 interface WidgetSettings {
 	settings: CatSettings & {
 		dark?: boolean
 		why?: boolean
 		thinking?: string
-		user?: string
 		placeholder?: string
 		primary?: string
 		callback?: (message: string) => Promise<string>
-		prompt?: Partial<PromptSettings>
 		defaults?: string[]
 		features?: Feature[]
 	}
@@ -28,10 +26,10 @@ interface WidgetSettings {
 
 const props = withDefaults(defineProps<WidgetSettings>(), {
 	settings: () => ({
-		baseUrl: 'localhost',
+		host: 'localhost',
 		dark: false,
 		why: false,
-		user: "user",
+		userId: "user",
 		thinking: 'Cheshire Cat is thinking...',
 		placeholder: 'Ask the Cheshire Cat...',
 		primary: '',
@@ -103,7 +101,7 @@ const contentHandler = (content: string | File[] | null) => {
 			new URL(content)
 			sendWebsite(content)
 		} catch (_) { 
-			dispatchMessage(content, settings.user ?? "user", settings.callback, settings.prompt ?? {})
+			dispatchMessage(content, settings.userId ?? "user", settings.callback)
 		}
 	} else content.forEach(f => sendFile(f))
 }
@@ -217,7 +215,7 @@ const dispatchWebsite = () => {
 const sendMessage = (message: string) => {
 	if (message === '') return
 	userMessage.value = ''
-	dispatchMessage(message, settings.user ?? "user", settings.callback, settings.prompt ?? {})
+	dispatchMessage(message, settings.userId ?? "user", settings.callback)
 }
 
 /**

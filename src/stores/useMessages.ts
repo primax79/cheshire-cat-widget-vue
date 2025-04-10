@@ -3,7 +3,6 @@ import type { BotMessage, UserMessage } from '@models/Message'
 import { now, uniqueId } from 'lodash'
 import { useNotifications } from '@stores/useNotifications'
 import { apiClient } from '@/config'
-import type { PromptSettings } from 'ccat-api'
 
 export const useMessages = defineStore('messages', () => {
   const currentState = reactive<MessagesState>({
@@ -102,13 +101,12 @@ export const useMessages = defineStore('messages', () => {
   const dispatchMessage = async (
     message: string,
     userId: string,
-    callback?: (message: string) => Promise<string>, 
-    settings?: Partial<PromptSettings>
+    callback?: (message: string) => Promise<string>,
   ) => {
     if (callback) {
       const msg = await callback(message)
-      apiClient.send(msg, userId, settings)
-    } else apiClient.send(message, userId, settings)
+      apiClient.send({ text: msg }, userId)
+    } else apiClient.send({ text: message }, userId)
     addMessage({
       text: message.trim(),
       timestamp: now(),
