@@ -232,16 +232,16 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 </script>
 
 <template>
-	<div ref="widgetRoot" :data-theme="settings.dark ? 'dark' : 'light'"
+	<div ref="widgetRoot" id="cc-widget-root" :data-theme="settings.dark ? 'dark' : 'light'"
 		class="relative flex h-full min-h-full w-full flex-col scroll-smooth transition-colors @container selection:bg-primary">
-		<NotificationStack />
-		<div ref="dropContentZone"
+		<NotificationStack id="cc-notification-stack" />
+		<div ref="dropContentZone" id="cc-drop-content-zone"
 			class="relative flex h-full w-full flex-col justify-center gap-4 self-center text-sm"
 			:class="{
 				'pb-16 md:pb-20': !isTwoLines,
 				'pb-20 md:pb-24': isTwoLines,
 			}">
-			<div v-if="isOverDropZone" class="flex h-full w-full grow flex-col items-center justify-center py-4 md:pb-0">
+			<div v-if="isOverDropZone" id="cc-drop-zone-active" class="flex h-full w-full grow flex-col items-center justify-center py-4 md:pb-0">
 				<div class="relative flex w-full grow items-center justify-center rounded-md border-2 border-dashed border-primary p-2 md:p-4">
 					<p class="text-lg md:text-xl">
 						Drop 
@@ -250,31 +250,32 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 						</span>
 						to send to the Cheshire Cat, meow!
 					</p>
-					<button class="btn btn-circle btn-error btn-sm absolute right-2 top-2" @click="isOverDropZone = false">
+					<button id="cc-close-drop-zone" class="btn btn-circle btn-error btn-sm absolute right-2 top-2" @click="isOverDropZone = false">
 						<heroicons-x-mark-20-solid class="h-6 w-6" />
 					</button>
 				</div>
 			</div>
-			<div v-else-if="!messagesState.ready" class="flex grow items-center justify-center self-center">
-				<p v-if="messagesState.error" class="w-fit rounded-md bg-error p-4 font-semibold text-base-100">
+			<div v-else-if="!messagesState.ready" id="cc-loading-state" class="flex grow items-center justify-center self-center">
+				<p v-if="messagesState.error" id="cc-error-message" class="w-fit rounded-md bg-error p-4 font-semibold text-base-100">
 					{{ messagesState.error }}
 				</p>
-				<p v-else class="flex flex-col items-center justify-center gap-2">
+				<p v-else id="cc-loading-spinner" class="flex flex-col items-center justify-center gap-2">
 					<span class="loading loading-spinner loading-lg text-primary" />
 					<span class="text-lg font-medium text-neutral">Getting ready...</span>
 				</p>
 			</div>
-			<div v-else-if="messagesState.messages.length" id="w-root" ref="chatRoot"
+			<div v-else-if="messagesState.messages.length" id="cc-chat-container" ref="chatRoot"
 				class="flex grow flex-col overflow-y-auto">
 				<MessageBox v-for="msg in messagesState.messages"
 					:key="msg.id"
+					:id="`cc-message-${msg.id}`"
 					:sender="msg.sender"
 					:text="msg.text"
 					:why="settings.why && msg.sender === 'bot' ? msg.why : ''" />
-				<p v-if="messagesState.error" class="w-fit rounded-md bg-error p-4 font-semibold text-base-100">
+				<p v-if="messagesState.error" id="cc-chat-error" class="w-fit rounded-md bg-error p-4 font-semibold text-base-100">
 					{{ messagesState.error }}
 				</p>
-				<div v-else-if="!messagesState.error && messagesState.loading" class="mb-2 ml-2 flex items-center gap-2">
+				<div v-else-if="!messagesState.error && messagesState.loading" id="cc-thinking-indicator" class="mb-2 ml-2 flex items-center gap-2">
 					<span class="text-lg">😺</span>
 					<p class="flex items-center gap-2">
 						<span class="loading loading-dots loading-xs" />
@@ -282,32 +283,32 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 					</p>
 				</div>
 			</div>
-			<div v-else class="flex grow cursor-pointer flex-col items-center justify-center gap-4 overflow-y-auto p-4">
-				<div v-for="(msg, index) in randomDefaultMessages" :key="index" class="btn btn-neutral font-medium normal-case text-base-100 shadow-lg"
+			<div v-else id="cc-default-messages" class="flex grow cursor-pointer flex-col items-center justify-center gap-4 overflow-y-auto p-4">
+				<div v-for="(msg, index) in randomDefaultMessages" :key="index" :id="`cc-default-msg-${index}`" class="btn btn-neutral font-medium normal-case text-base-100 shadow-lg"
 					@click="sendMessage(msg)">
 					{{ msg }}
 				</div>
 			</div>
-			<div class="fixed bottom-0 left-0 flex w-full items-center justify-center">
+			<div id="cc-input-container" class="fixed bottom-0 left-0 flex w-full items-center justify-center">
 				<div class="flex w-full items-center gap-2 @md:gap-4">
 					<div class="relative w-full">
-						<textarea ref="textArea" v-model.trim="userMessage" :disabled="inputDisabled"
+						<textarea ref="textArea" id="cc-message-input" v-model.trim="userMessage" :disabled="inputDisabled"
 							class="textarea block max-h-20 w-full resize-none overflow-auto bg-base-200 !outline-offset-0" 
 							:class="[ hasMenu ? (isTwoLines ? 'pr-10' : 'pr-20') : 'pr-10' ]"
 							:placeholder="settings.placeholder" @keydown="preventSend" />
 						<div :class="[ isTwoLines ? 'flex-col-reverse' : '' ]" class="absolute right-2 top-1/2 flex -translate-y-1/2 gap-1">
-							<button :disabled="inputDisabled || userMessage.length === 0"
+							<button id="cc-send-button" :disabled="inputDisabled || userMessage.length === 0"
 								class="btn btn-circle btn-ghost btn-sm self-center"
 								@click="sendMessage(userMessage)">
 								<heroicons-paper-airplane-solid class="h-6 w-6" />
 							</button>
-							<div v-if="hasMenu" class="dropdown dropdown-end dropdown-top self-center">
-								<button tabindex="0" :disabled="inputDisabled" class="btn btn-circle btn-ghost btn-sm">
+							<div v-if="hasMenu" id="cc-menu-dropdown" class="dropdown dropdown-end dropdown-top self-center">
+								<button id="cc-menu-trigger" tabindex="0" :disabled="inputDisabled" class="btn btn-circle btn-ghost btn-sm">
 									<heroicons-bolt-solid class="h-6 w-6" />
 								</button>
-								<ul tabindex="0" class="dropdown-content join join-vertical !-right-1/4 z-10 mb-5 p-0">
+								<ul id="cc-menu-items" tabindex="0" class="dropdown-content join join-vertical !-right-1/4 z-10 mb-5 p-0">
 									<li v-if="settings.features?.includes('memory')">
-										<button :disabled="rabbitHoleState.loading"
+										<button id="cc-upload-memory" :disabled="rabbitHoleState.loading"
 											class="btn join-item w-full flex-nowrap px-2" 
 											@click="openMemory({ multiple: false, accept: AcceptedMemoryTypes.join(',') })">
 											<span class="grow normal-case">Upload memories</span>
@@ -317,7 +318,7 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 										</button>
 									</li>
 									<li v-if="settings.features?.includes('web')">
-										<button :disabled="rabbitHoleState.loading" 
+										<button id="cc-upload-url" :disabled="rabbitHoleState.loading" 
 											class="btn join-item w-full flex-nowrap px-2" 
 											@click="boxUploadURL?.toggleModal()">
 											<span class="grow normal-case">Upload url</span>
@@ -327,7 +328,7 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 										</button>
 									</li>
 									<li v-if="settings.features?.includes('file')">
-										<button :disabled="rabbitHoleState.loading" 
+										<button id="cc-upload-file" :disabled="rabbitHoleState.loading" 
 											class="btn join-item w-full flex-nowrap px-2" 
 											@click="openFile({ multiple: false })">
 											<span class="grow normal-case">Upload file</span>
@@ -337,7 +338,7 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 										</button>
 									</li>
 									<li v-if="settings.features?.includes('reset')">
-										<button :disabled="messagesState.messages.length === 0" 
+										<button id="cc-clear-conversation" :disabled="messagesState.messages.length === 0" 
 											class="btn join-item w-full flex-nowrap px-2" 
 											@click="wipeConversation()">
 											<span class="grow normal-case">Clear conversation</span>
@@ -351,25 +352,26 @@ const scrollToBottom = () => chatRoot.value?.scrollTo({ behavior: 'smooth', left
 						</div>
 					</div>
 					<button v-if="isSupported && settings.features?.includes('record')" 
+						id="cc-mic-button"
 						class="btn btn-circle btn-primary" :class="[isListening ? 'glass btn-outline' : '']"
 						:disabled="inputDisabled" @click="toggleRecording()">
 						<heroicons-microphone-solid class="h-6 w-6" />
 					</button>
 				</div>
-				<button v-if="isScrollable" class="btn btn-circle btn-primary btn-outline btn-sm absolute bottom-28 right-4 bg-base-100"
+				<button v-if="isScrollable" id="cc-scroll-to-bottom" class="btn btn-circle btn-primary btn-outline btn-sm absolute bottom-28 right-4 bg-base-100"
 					@click="scrollToBottom">
 					<heroicons-arrow-down-20-solid class="h-5 w-5" />
 				</button>
 			</div>
-			<ModalBox ref="boxUploadURL">
+			<ModalBox ref="boxUploadURL" id="cc-url-modal">
 				<div class="flex flex-col items-center justify-center gap-4 text-neutral">
 					<h3 class="text-lg font-bold">
 						Insert URL
 					</h3>
 					<p>Write down the URL you want the Cat to digest :</p>
-					<input v-model.trim="insertedURL" type="text" placeholder="Enter url..."
+					<input id="cc-url-input" v-model.trim="insertedURL" type="text" placeholder="Enter url..."
 						class="input input-primary input-sm w-full !transition-all">
-					<button class="btn btn-primary btn-sm" @click="dispatchWebsite">
+					<button id="cc-url-send" class="btn btn-primary btn-sm" @click="dispatchWebsite">
 						Send
 					</button>
 				</div>
