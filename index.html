@@ -30,11 +30,18 @@
     <script type="module" src="/src/main.ts"></script>
     <script>
       const catChat = document.querySelector("#cat-chat")
-
+      //const config_access_token = "MYBEAUTIFULTOKEN";
+      const config_user = "username"
       catChat.settings = {
-        authKey: 'meow',
-        baseUrl: 'localhost',
+        dark: true,
+        why: true,
+        thinking: "the cat is thinking...",
+        placeholder: "Ask the Cheshire Cat",
+        // authKey: 'meow',
+        host: 'localhost',
         port: '1865',
+        userId: config_user,
+        //credential: config_access_token,
         ws: {
           onFailed: (error) => {
             console.log(error.description)
