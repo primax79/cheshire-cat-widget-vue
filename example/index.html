@@ -23,8 +23,12 @@
         flex-grow: 1;
       }
     </style>
-    <script type="module" crossorigin src="./widget.js"></script>
-    <link rel="stylesheet" href="./widget.css">
+    <!-- <script type="module" crossorigin src="./widget.js"></script>
+    <link rel="stylesheet" href="./widget.css"> -->
+
+    <script type="module" crossorigin src="https://cdn.jsdelivr.net/gh/primax79/cheshire-cat-widget-vue@main/example-dev/widget.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/primax79/cheshire-cat-widget-vue@main/example-dev/widget.css">
+
   </head>
   <body data-theme="light">
     <h1 class="chat-title">Cat ready to hack!</h1>
@@ -32,8 +36,8 @@
     
     <script>
       const catChat = document.querySelector("#cat-chat")
-      //const config_access_token = "MYBEAUTIFULTOKEN";
-      const config_user = "username"
+      const config_access_token = "MYBEAUTIFULTOKEN";
+      const config_user = "USERNAME"
       catChat.settings = {
         dark: true,
         why: true,
@@ -43,7 +47,7 @@
         host: 'localhost',
         port: '1865',
         userId: config_user,
-        //credential: config_access_token,
+        credential: config_access_token,
         ws: {
           onFailed: (error) => {
             console.log(error.description)
